@@ -2,51 +2,52 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fibreglass Workshop Gel Time Calculator</title>
+<title>Fibreglass Workshop Resin Calculator</title>
 
 <style>
-body{
+body {
     font-family: Arial, sans-serif;
-    background:#1e1e1e;
-    color:white;
-    margin:0;
+    background: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
 }
 
-header{
-    background:#ff6600;
-    padding:15px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
+header {
+    background: #ff6600;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
 }
 
-.container{
-    padding:20px;
+.container {
+    padding: 20px;
 }
 
-input{
-    width:100%;
-    padding:15px;
-    margin:10px 0;
-    font-size:18px;
-    border-radius:6px;
-    border:none;
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 18px;
+    border-radius: 6px;
+    border: none;
 }
 
-button{
-    width:100%;
-    padding:18px;
-    font-size:20px;
-    background:#ff6600;
-    color:white;
-    border:none;
-    border-radius:6px;
+button {
+    width: 100%;
+    padding: 18px;
+    font-size: 20px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 6px;
 }
 
-.result{
-    margin-top:20px;
-    font-size:22px;
-    font-weight:bold;
+.result {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -54,12 +55,12 @@ button{
 <body>
 
 <header>
-Fibreglass Workshop Gel Time Calculator
+Fibreglass Workshop Resin Calculator
 </header>
 
 <div class="container">
 
-<h2>Resin Calibration</h2>
+<h2>Resin Calibration (Real Gel Test)</h2>
 
 <label>Base Temperature (°C)</label>
 <input id="baseTemp" type="number" value="27">
@@ -74,53 +75,52 @@ Fibreglass Workshop Gel Time Calculator
 <h2>Current Conditions</h2>
 
 <label>Current Temperature (°C)</label>
-<input id="temp" type="number" placeholder="30">
+<input id="temp" type="number" placeholder="e.g. 30">
 
 <label>Desired Working Time / Gel Time (minutes)</label>
-<input id="targetGel" type="number" placeholder="40">
+<input id="workingTime" type="number" placeholder="e.g. 40">
 
 <label>Resin Amount (grams)</label>
-<input id="resinWeight" type="number" placeholder="2000">
+<input id="resinWeight" type="number" placeholder="e.g. 2000">
 
-<button onclick="calculate()">Calculate Catalyst</button>
+<button onclick="calculateCatalyst()">Calculate Catalyst</button>
 
-<div class="result" id="output"></div>
+<div class="result" id="result"></div>
 
 </div>
 
 <script>
 
-function calculate(){
+function calculateCatalyst(){
 
 let baseTemp = parseFloat(document.getElementById("baseTemp").value);
 let baseCat = parseFloat(document.getElementById("baseCat").value);
 let baseGel = parseFloat(document.getElementById("baseGel").value);
 
 let temp = parseFloat(document.getElementById("temp").value);
-let targetGel = parseFloat(document.getElementById("targetGel").value);
+let targetGel = parseFloat(document.getElementById("workingTime").value);
 let resinWeight = parseFloat(document.getElementById("resinWeight").value);
 
 if(isNaN(temp) || isNaN(targetGel) || isNaN(resinWeight)){
-document.getElementById("output").innerHTML = "Please enter temperature, working time and resin weight.";
+document.getElementById("result").innerHTML = "Please enter temperature, working time and resin weight.";
 return;
 }
 
-/* temperature scaling */
+/* temperature effect */
 let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
 
-/* calculate catalyst % */
+/* calculate catalyst percentage */
 let catalystPercent = baseCat * ((baseGel * tempFactor) / targetGel);
 
-/* grams of catalyst */
+/* catalyst grams */
 let catalystGrams = resinWeight * (catalystPercent / 100);
 
-/* convert to ml (MEKP density approx 1.1 g/ml) */
+/* convert grams to ml (MEKP density ≈ 1.1 g/ml) */
 let catalystML = catalystGrams / 1.1;
 
-document.getElementById("output").innerHTML =
+document.getElementById("result").innerHTML =
 "Catalyst Required:<br><br>" +
-catalystPercent.toFixed(2) + "%<br>" +
-catalystGrams.toFixed(1) + " g<br>" +
+catalystPercent.toFixed(2) + " %<br>" +
 catalystML.toFixed(1) + " ml";
 
 }
