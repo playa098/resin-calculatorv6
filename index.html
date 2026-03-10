@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fibreglass Workshop Resin Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #ff6600;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.container { padding: 20px; }
+
+input, select {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 18px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    width: 100%;
+    padding: 18px;
+    font-size: 20px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+.result {
+    margin-top:20px;
+    font-size:22px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+Fibreglass Workshop Resin Calculator
+</header>
+
+<div class="container">
+
+<h2>Resin Mix Calculator</h2>
+
+<label>Resin Weight (grams)</label>
+<input id="resinWeight" type="number" placeholder="e.g. 1000">
+
+<label>Catalyst Percentage (%)</label>
+<input id="catalystPercent" type="number" placeholder="e.g. 1.5">
+
+<button onclick="calculateMix()">Calculate Catalyst</button>
+
+<div class="result" id="mixResult"></div>
+
+<hr>
+
+<h2>Gel Time Estimator</h2>
+
+<h3>Calibration (from real test)</h3>
+
+<label>Base Temperature (°C)</label>
+<input id="baseTemp" type="number" value="27">
+
+<label>Base Catalyst %</label>
+<input id="baseCat" type="number" value="1">
+
+<label>Base Gel Time (minutes)</label>
+<input id="baseGel" type="number" value="59">
+
+<h3>Current Conditions</h3>
+
+<label>Current Temperature (°C)</label>
+<input id="temp" type="number" value="30">
+
+<label>Current Catalyst %</label>
+<input id="cat" type="number" value="2">
+
+<button onclick="calculateGel()">Estimate Gel Time</button>
+
+<div class="result" id="gelResult"></div>
+
+</div>
+
+<script>
+
+function calculateMix(){
+
+let resin = parseFloat(document.getElementById("resinWeight").value);
+let percent = parseFloat(document.getElementById("catalystPercent").value);
+
+if(!resin || !percent){
+    document.getElementById("mixResult").innerHTML = "Enter resin weight and catalyst %";
+    return;
+}
+
+let catalyst = resin * (percent / 100);
+
+document.getElementById("mixResult").innerHTML =
+"Catalyst required: " + catalyst.toFixed(2) + " g";
+}
+
+
+function calculateGel(){
+
+let baseTemp = parseFloat(document.getElementById("baseTemp").value);
+let baseCat = parseFloat(document.getElementById("baseCat").value);
+let baseGel = parseFloat(document.getElementById("baseGel").value);
+
+let temp = parseFloat(document.getElementById("temp").value);
+let cat = parseFloat(document.getElementById("cat").value);
+
+/* Catalyst scaling (inverse relationship) */
+let catalystFactor = baseCat / cat;
+
+/* Temperature scaling (10°C halves gel time) */
+let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
+
+/* Final gel time prediction */
+let gelTime = baseGel * catalystFactor * tempFactor;
+
+document.getElementById("gelResult").innerHTML =
+"Estimated Gel Time: " + gelTime.toFixed(1) + " minutes";
+
+}
+
+</script>
+
+</body>
+</html>
