@@ -111,24 +111,40 @@ document.getElementById("result").innerHTML =
 return;
 }
 
-/* Convert kg to grams */
 let resinGrams = resinKg * 1000;
 
-/* Temperature scaling */
 let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
 
 let catalystPercent;
 let gelTime;
+let degasTime = 0;
 
-/* CASE 1: Working time entered → calculate catalyst */
+/* USER ENTERS WORKING TIME */
+
 if(!isNaN(workingTime) && isNaN(catalystInput)){
 
 catalystPercent = baseCat * ((baseGel * tempFactor) / workingTime);
+
+if(catalystPercent > 3){
+
+catalystPercent = 3;
+
+/* Calculate real gel time at max catalyst */
+gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
+
+/* Remaining time becomes degas time */
+degasTime = gelTime - workingTime;
+
+}else{
+
 gelTime = workingTime;
 
 }
 
-/* CASE 2: Catalyst entered → calculate working time */
+}
+
+/* USER ENTERS CATALYST */
+
 else if(!isNaN(catalystInput) && isNaN(workingTime)){
 
 catalystPercent = catalystInput;
@@ -136,23 +152,27 @@ gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
 
 }
 
-/* CASE 3: invalid input */
 else{
+
 document.getElementById("result").innerHTML =
 "Enter either Working Time OR Catalyst %, not both.";
 return;
+
 }
 
-/* Catalyst mass */
 let catalystGrams = resinGrams * (catalystPercent / 100);
-
-/* Convert to ml */
 let catalystML = catalystGrams / 1.1;
 
-document.getElementById("result").innerHTML =
+let output =
 "Catalyst: " + catalystPercent.toFixed(2) + "%<br>" +
 "Catalyst Volume: " + catalystML.toFixed(2) + " ml<br>" +
 "Estimated Gel Time: " + gelTime.toFixed(2) + " minutes";
+
+if(degasTime > 0){
+output += "<br>Degas Time: " + degasTime.toFixed(2) + " minutes";
+}
+
+document.getElementById("result").innerHTML = output;
 
 }
 
