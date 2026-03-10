@@ -10,7 +10,6 @@ body{
     background:#1e1e1e;
     color:white;
     margin:0;
-    padding:0;
 }
 
 header{
@@ -75,15 +74,15 @@ Fibreglass Workshop Gel Time Calculator
 <h2>Current Conditions</h2>
 
 <label>Current Temperature (°C)</label>
-<input id="temp" type="number" placeholder="e.g. 30">
+<input id="temp" type="number" placeholder="30">
 
 <label>Desired Working Time / Gel Time (minutes)</label>
-<input id="targetGel" type="number" placeholder="e.g. 40">
+<input id="targetGel" type="number" placeholder="40">
 
 <label>Resin Amount (grams)</label>
-<input id="resinWeight" type="number" placeholder="e.g. 2000">
+<input id="resinWeight" type="number" placeholder="2000">
 
-<button onclick="calculateCatalyst()">Calculate Catalyst</button>
+<button onclick="calculate()">Calculate Catalyst</button>
 
 <div class="result" id="output"></div>
 
@@ -91,7 +90,7 @@ Fibreglass Workshop Gel Time Calculator
 
 <script>
 
-function calculateCatalyst(){
+function calculate(){
 
 let baseTemp = parseFloat(document.getElementById("baseTemp").value);
 let baseCat = parseFloat(document.getElementById("baseCat").value);
@@ -101,27 +100,28 @@ let temp = parseFloat(document.getElementById("temp").value);
 let targetGel = parseFloat(document.getElementById("targetGel").value);
 let resinWeight = parseFloat(document.getElementById("resinWeight").value);
 
-if(!temp || !targetGel || !resinWeight){
-document.getElementById("output").innerHTML="Please fill all fields";
+if(isNaN(temp) || isNaN(targetGel) || isNaN(resinWeight)){
+document.getElementById("output").innerHTML = "Please enter temperature, working time and resin weight.";
 return;
 }
 
-/* Temperature scaling */
-let tempFactor = Math.pow(0.5,(temp-baseTemp)/10);
+/* temperature scaling */
+let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
 
-/* Solve catalyst percentage */
-let catalystPercent = baseCat*((baseGel*tempFactor)/targetGel);
+/* calculate catalyst % */
+let catalystPercent = baseCat * ((baseGel * tempFactor) / targetGel);
 
-/* Catalyst weight in grams */
-let catalystGrams = resinWeight*(catalystPercent/100);
+/* grams of catalyst */
+let catalystGrams = resinWeight * (catalystPercent / 100);
 
-/* Convert grams to ml (MEKP density ~1.1 g/ml) */
-let catalystML = catalystGrams/1.1;
+/* convert to ml (MEKP density approx 1.1 g/ml) */
+let catalystML = catalystGrams / 1.1;
 
 document.getElementById("output").innerHTML =
-"Catalyst Required:<br><br>"+
-catalystPercent.toFixed(2)+" %<br>"+
-catalystML.toFixed(1)+" ml";
+"Catalyst Required:<br><br>" +
+catalystPercent.toFixed(2) + "%<br>" +
+catalystGrams.toFixed(1) + " g<br>" +
+catalystML.toFixed(1) + " ml";
 
 }
 
