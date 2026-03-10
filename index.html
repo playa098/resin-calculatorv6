@@ -6,48 +6,48 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
-    background: #1e1e1e;
-    color: white;
-    margin: 0;
-    padding: 0;
+font-family: Arial, sans-serif;
+background: #1e1e1e;
+color: white;
+margin: 0;
+padding: 0;
 }
 
 header {
-    background: #ff6600;
-    padding: 15px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
+background: #ff6600;
+padding: 15px;
+text-align: center;
+font-size: 22px;
+font-weight: bold;
 }
 
 .container {
-    padding: 20px;
+padding: 20px;
 }
 
 input {
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 18px;
-    border-radius: 6px;
-    border: none;
+width: 100%;
+padding: 15px;
+margin: 10px 0;
+font-size: 18px;
+border-radius: 6px;
+border: none;
 }
 
 button {
-    width: 100%;
-    padding: 18px;
-    font-size: 20px;
-    background: #ff6600;
-    color: white;
-    border: none;
-    border-radius: 6px;
+width: 100%;
+padding: 18px;
+font-size: 20px;
+background: #ff6600;
+color: white;
+border: none;
+border-radius: 6px;
 }
 
 .result {
-    margin-top: 20px;
-    font-size: 22px;
-    font-weight: bold;
+margin-top: 20px;
+font-size: 22px;
+font-weight: bold;
 }
 </style>
 </head>
@@ -71,17 +71,16 @@ Fibreglass Workshop Resin Calculator
 <label>Base Gel Time (minutes)</label>
 <input id="baseGel" type="number" value="59">
 
-
 <h2>Current Conditions</h2>
 
 <label>Current Temperature (°C)</label>
-<input id="temp" type="number" placeholder="e.g. 30">
+<input id="temp" type="number" placeholder="30">
 
-<label>Desired Working Time / Gel Time (minutes)</label>
-<input id="workingTime" type="number" placeholder="e.g. 40">
+<label>Desired Working Time (minutes)</label>
+<input id="workingTime" type="number" placeholder="40">
 
-<label>Resin Amount (grams)</label>
-<input id="resinWeight" type="number" placeholder="e.g. 2000">
+<label>Resin Amount (kg)</label>
+<input id="resinWeight" type="number" placeholder="2.00" step="0.01">
 
 <button onclick="calculateCatalyst()">Calculate Catalyst</button>
 
@@ -99,12 +98,16 @@ let baseGel = parseFloat(document.getElementById("baseGel").value);
 
 let temp = parseFloat(document.getElementById("temp").value);
 let targetGel = parseFloat(document.getElementById("workingTime").value);
-let resinWeight = parseFloat(document.getElementById("resinWeight").value);
+let resinKg = parseFloat(document.getElementById("resinWeight").value);
 
-if(isNaN(temp) || isNaN(targetGel) || isNaN(resinWeight)){
-document.getElementById("result").innerHTML = "Please enter temperature, working time and resin weight.";
+if(isNaN(temp) || isNaN(targetGel) || isNaN(resinKg)){
+document.getElementById("result").innerHTML =
+"Please enter temperature, working time and resin weight.";
 return;
 }
+
+/* Convert resin to grams */
+let resinGrams = resinKg * 1000;
 
 /* temperature effect */
 let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
@@ -113,15 +116,15 @@ let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
 let catalystPercent = baseCat * ((baseGel * tempFactor) / targetGel);
 
 /* catalyst grams */
-let catalystGrams = resinWeight * (catalystPercent / 100);
+let catalystGrams = resinGrams * (catalystPercent / 100);
 
-/* convert grams to ml (MEKP density ≈ 1.1 g/ml) */
+/* convert to ml (MEKP density ≈ 1.1 g/ml) */
 let catalystML = catalystGrams / 1.1;
 
 document.getElementById("result").innerHTML =
 "Catalyst Required:<br><br>" +
-catalystPercent.toFixed(2) + " %<br>" +
-catalystML.toFixed(1) + " ml";
+catalystPercent.toFixed(2) + "%<br>" +
+catalystML.toFixed(2) + " ml";
 
 }
 
