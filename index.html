@@ -6,48 +6,44 @@
 
 <style>
 body {
-font-family: Arial, sans-serif;
-background: #1e1e1e;
-color: white;
-margin: 0;
-padding: 0;
+    font-family: Arial, sans-serif;
+    background: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
 }
-
 header {
-background: #ff6600;
-padding: 15px;
-text-align: center;
-font-size: 22px;
-font-weight: bold;
+    background: #ff6600;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
 }
-
-.container {
-padding: 20px;
-}
+.container { padding: 20px; }
 
 input {
-width: 100%;
-padding: 15px;
-margin: 10px 0;
-font-size: 18px;
-border-radius: 6px;
-border: none;
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 18px;
+    border-radius: 6px;
+    border: none;
 }
 
 button {
-width: 100%;
-padding: 18px;
-font-size: 20px;
-background: #ff6600;
-color: white;
-border: none;
-border-radius: 6px;
+    width: 100%;
+    padding: 18px;
+    font-size: 20px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 6px;
 }
 
 .result {
-margin-top: 20px;
-font-size: 22px;
-font-weight: bold;
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -61,7 +57,6 @@ Fibreglass Workshop Resin Calculator
 <div class="container">
 
 <h2>Resin Calibration (Real Gel Test)</h2>
-
 <label>Base Temperature (°C)</label>
 <input id="baseTemp" type="number" value="27">
 
@@ -71,11 +66,15 @@ Fibreglass Workshop Resin Calculator
 <label>Base Gel Time (minutes)</label>
 <input id="baseGel" type="number" value="59">
 
-
 <h2>Current Conditions</h2>
+<label>Workshop Temperature (°C)</label>
+<input id="workshopTemp" type="number" placeholder="30">
 
-<label>Current Temperature (°C)</label>
-<input id="temp" type="number" placeholder="30">
+<label>Resin Temperature (°C)</label>
+<input id="resinTemp" type="number" placeholder="30">
+
+<label>Mould Temperature (°C)</label>
+<input id="mouldTemp" type="number" placeholder="30">
 
 <label>Desired Working Time (minutes)</label>
 <input id="workingTime" type="number" placeholder="Enter OR catalyst %">
@@ -93,89 +92,77 @@ Fibreglass Workshop Resin Calculator
 </div>
 
 <script>
-
 function calculate(){
+    // Calibration
+    let baseTemp = parseFloat(document.getElementById("baseTemp").value);
+    let baseCat = parseFloat(document.getElementById("baseCat").value);
+    let baseGel = parseFloat(document.getElementById("baseGel").value);
 
-let baseTemp = parseFloat(document.getElementById("baseTemp").value);
-let baseCat = parseFloat(document.getElementById("baseCat").value);
-let baseGel = parseFloat(document.getElementById("baseGel").value);
+    // Current Conditions
+    let workshopTemp = parseFloat(document.getElementById("workshopTemp").value);
+    let resinTemp = parseFloat(document.getElementById("resinTemp").value);
+    let mouldTemp = parseFloat(document.getElementById("mouldTemp").value);
 
-let temp = parseFloat(document.getElementById("temp").value);
-let workingTime = parseFloat(document.getElementById("workingTime").value);
-let catalystInput = parseFloat(document.getElementById("catalystInput").value);
-let resinKg = parseFloat(document.getElementById("resinWeight").value);
+    let workingTime = parseFloat(document.getElementById("workingTime").value);
+    let catalystInput = parseFloat(document.getElementById("catalystInput").value);
+    let resinKg = parseFloat(document.getElementById("resinWeight").value);
 
-if(isNaN(temp) || isNaN(resinKg)){
-document.getElementById("result").innerHTML =
-"Please enter temperature and resin amount.";
-return;
+    if(isNaN(workshopTemp) || isNaN(resinTemp) || isNaN(mouldTemp) || isNaN(resinKg)){
+        document.getElementById("result").innerHTML = "Please enter all temperatures and resin amount.";
+        return;
+    }
+
+    let resinGrams = resinKg * 1000;
+
+    // Weighted reaction temperature
+    let reactionTemp = 0.5*resinTemp + 0.3*mouldTemp + 0.2*workshopTemp;
+
+    // Temperature factor
+    let tempFactor = Math.pow(0.5, (reactionTemp - baseTemp)/10);
+
+    let catalystPercent;
+    let gelTime;
+    let degasTime = 0;
+
+    // User enters working time
+    if(!isNaN(workingTime) && isNaN(catalystInput)){
+        catalystPercent = baseCat * ((baseGel * tempFactor) / workingTime);
+
+        if(catalystPercent > 3){
+            catalystPercent = 3;
+            gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
+            degasTime = gelTime - workingTime;
+        } else {
+            gelTime = workingTime;
+        }
+    }
+    // User enters catalyst %
+    else if(!isNaN(catalystInput) && isNaN(workingTime)){
+        catalystPercent = catalystInput;
+        gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
+    }
+    else{
+        document.getElementById("result").innerHTML = "Enter either Working Time OR Catalyst %, not both.";
+        return;
+    }
+
+    // Catalyst mass & volume
+    let catalystGrams = resinGrams * (catalystPercent / 100);
+    let catalystML = catalystGrams / 1.1;
+
+    // Output
+    let output = 
+        "Weighted Reaction Temperature: " + reactionTemp.toFixed(2) + " °C<br>" +
+        "Catalyst: " + catalystPercent.toFixed(2) + "%<br>" +
+        "Catalyst Volume: " + catalystML.toFixed(2) + " ml<br>" +
+        "Estimated Gel Time: " + gelTime.toFixed(2) + " minutes";
+
+    if(degasTime > 0){
+        output += "<br>Degas Time: " + degasTime.toFixed(2) + " minutes";
+    }
+
+    document.getElementById("result").innerHTML = output;
 }
-
-let resinGrams = resinKg * 1000;
-
-let tempFactor = Math.pow(0.5, (temp - baseTemp) / 10);
-
-let catalystPercent;
-let gelTime;
-let degasTime = 0;
-
-/* USER ENTERS WORKING TIME */
-
-if(!isNaN(workingTime) && isNaN(catalystInput)){
-
-catalystPercent = baseCat * ((baseGel * tempFactor) / workingTime);
-
-if(catalystPercent > 3){
-
-catalystPercent = 3;
-
-/* Calculate real gel time at max catalyst */
-gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
-
-/* Remaining time becomes degas time */
-degasTime = gelTime - workingTime;
-
-}else{
-
-gelTime = workingTime;
-
-}
-
-}
-
-/* USER ENTERS CATALYST */
-
-else if(!isNaN(catalystInput) && isNaN(workingTime)){
-
-catalystPercent = catalystInput;
-gelTime = baseGel * (baseCat / catalystPercent) * tempFactor;
-
-}
-
-else{
-
-document.getElementById("result").innerHTML =
-"Enter either Working Time OR Catalyst %, not both.";
-return;
-
-}
-
-let catalystGrams = resinGrams * (catalystPercent / 100);
-let catalystML = catalystGrams / 1.1;
-
-let output =
-"Catalyst: " + catalystPercent.toFixed(2) + "%<br>" +
-"Catalyst Volume: " + catalystML.toFixed(2) + " ml<br>" +
-"Estimated Gel Time: " + gelTime.toFixed(2) + " minutes";
-
-if(degasTime > 0){
-output += "<br>Degas Time: " + degasTime.toFixed(2) + " minutes";
-}
-
-document.getElementById("result").innerHTML = output;
-
-}
-
 </script>
 
 </body>
